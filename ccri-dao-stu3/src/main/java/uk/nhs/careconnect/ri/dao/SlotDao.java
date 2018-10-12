@@ -53,6 +53,10 @@ public class SlotDao implements SlotRepository {
     PractitionerEntityToFHIRPractitionerTransformer practitionerEntityToFHIRPractitionerTransformer;
 
     @Autowired
+    PractitionerRoleToFHIRPractitionerRoleTransformer practitionerRoleToFHIRPractitionerRoleTransformer;
+
+
+    @Autowired
     LocationEntityToFHIRLocationTransformer locationEntityToFHIRLocationTransformer;
 
     @Autowired
@@ -262,7 +266,13 @@ public class SlotDao implements SlotRepository {
 
                         case "Slot:schedule":
                             ScheduleEntity sched = slotEntity.getSchedule();
-                            if (sched != null) results.add(scheduleEntityToFHIRScheduleTransformer.transform(sched));
+
+                            if (sched != null) {
+                                if(!results.contains(sched)){
+                                    results.add(scheduleEntityToFHIRScheduleTransformer.transform(sched));
+                                }
+                            }
+                            break;
 
                         case "Schedule:actor:Practitioner":
                             for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
@@ -270,6 +280,16 @@ public class SlotDao implements SlotRepository {
                                     results.add(practitionerEntityToFHIRPractitionerTransformer.transform(actor.getPractitionerEntity()));
                                 }
                             }
+                            break;
+
+                        case "Schedule:actor:PractitionerRole":
+                            for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
+                                if (actor.getPractitionerRole() != null) {
+                                    results.add(practitionerRoleToFHIRPractitionerRoleTransformer.transform(actor.getPractitionerRole()));
+                                }
+                            }
+                            break;
+
 
                         case "Schedule:actor:Location":
                             for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
@@ -277,6 +297,7 @@ public class SlotDao implements SlotRepository {
                                     results.add(locationEntityToFHIRLocationTransformer.transform(actor.getLocationEntity()));
                                 }
                             }
+                            break;
 
                         case "Schedule:actor:HealthcareService":
                             for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
@@ -284,6 +305,8 @@ public class SlotDao implements SlotRepository {
                                     results.add(healthcareServiceEntityToFHIRHealthcareServiceTransformer.transform(actor.getHealthcareServiceEntity()));
                                 }
                             }
+                            break;
+
                     }
                 }
             }

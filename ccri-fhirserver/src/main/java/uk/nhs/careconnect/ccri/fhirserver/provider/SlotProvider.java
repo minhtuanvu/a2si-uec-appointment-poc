@@ -103,7 +103,11 @@ public class SlotProvider implements ICCResourceProvider {
                                      @OptionalParam(name =Slot.SP_SCHEDULE) ReferenceParam schedule,
                                      @OptionalParam(name = "service") ReferenceParam service,
                                      //@IncludeParam(allow = {"*"}) Set<Include> includes,
-                                     @IncludeParam(allow= {"Slot:schedule","Schedule:actor:Practitioner","Schedule:actor:Location","Schedule:actor:HealthcareService"}) Set<Include> includes
+                                     @IncludeParam(allow= {"Slot:schedule",
+                                                           "Schedule:actor:Practitioner",
+                                                           "Schedule:actor:PractitionerRole",
+                                                           "Schedule:actor:Location",
+                                                           "Schedule:actor:HealthcareService"}) Set<Include> includes
     )
 
     {

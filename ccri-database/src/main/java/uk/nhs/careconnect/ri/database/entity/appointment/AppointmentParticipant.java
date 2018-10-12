@@ -2,7 +2,6 @@ package uk.nhs.careconnect.ri.database.entity.appointment;
 
 
 import org.hl7.fhir.dstu3.model.Appointment;
-import org.hl7.fhir.dstu3.model.BackboneElement;
 import uk.nhs.careconnect.ri.database.entity.BaseResource;
 import uk.nhs.careconnect.ri.database.entity.Terminology.ConceptEntity;
 import uk.nhs.careconnect.ri.database.entity.patient.PatientEntity;
@@ -28,12 +27,17 @@ public class AppointmentParticipant extends BaseResource {
     @JoinColumn(name="TYPE_CONCEPT_ID",foreignKey= @ForeignKey(name="FK_APPOINTMENT_PARTICIPANT_TYPE_CONCEPT_ID"))
     private ConceptEntity type;
 
-/*    @Column(name = "PARTICIPANT_PATIENT_ID")
-    PatientEntity patient;*/
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="PARTICIPANT_ACTOR_ID",foreignKey= @ForeignKey(name="FK_APPOINTMENT_PARTICIPANT_PARTICIPANT_ACTOR_ID"))
+    private PatientEntity actor;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "PARTICIPANT_STATUS")
     private Appointment.ParticipationStatus status;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name = "PARTICIPANT_REQUIRED")
+    private Appointment.ParticipantRequired required;
 
     public ConceptEntity getType() {
         return type;
@@ -68,11 +72,11 @@ public class AppointmentParticipant extends BaseResource {
 		this.appointment = appointment;
 	}
 
-/*	public PatientEntity getPatient() {
-		return patient;
-	}
+    public PatientEntity getActor() { return actor; }
 
-	public void setPatient(PatientEntity patient) {
-		this.patient = patient;
-	}*/
+    public void setActor(PatientEntity actor) { this.actor = actor; }
+
+    public Appointment.ParticipantRequired getRequired() { return required; }
+
+    public void setRequired(Appointment.ParticipantRequired required) { this.required = required; }
 }

@@ -35,7 +35,11 @@ public interface SlotRepository extends BaseRepository<SlotEntity,Slot> {
                               @OptionalParam(name = Slot.SP_RES_ID) StringParam id,
                               @OptionalParam(name = Slot.SP_SCHEDULE) ReferenceParam schedule,
                               @OptionalParam(name = "service") ReferenceParam service,
-                              @IncludeParam(allow= {"Slot:schedule","Schedule:actor:Practitioner","Schedule:actor:Location","Schedule:actor:HealthcareService"}) Set<Include> includes
+                              @IncludeParam(allow= {"Slot:schedule",
+                                                    "Schedule:actor:Practitioner",
+                                                    "Schedule:actor:PractitionerRole",
+                                                    "Schedule:actor:Location",
+                                                    "Schedule:actor:HealthcareService"}) Set<Include> includes
     );
 
     List<SlotEntity> searchSlotEntity(FhirContext ctx,
@@ -45,17 +49,11 @@ public interface SlotRepository extends BaseRepository<SlotEntity,Slot> {
                                       @OptionalParam(name = Slot.SP_RES_ID) StringParam id,
                                       @OptionalParam(name = Slot.SP_SCHEDULE) ReferenceParam schedule,
                                       @OptionalParam(name = "service") ReferenceParam service,
-                                      @IncludeParam(allow= {"Slot:schedule","Schedule:actor:Practitioner","Schedule:actor:Location","Schedule:actor:HealthcareService"}) Set<Include> includes
+                                      @IncludeParam(allow= {"Slot:schedule",
+                                                            "Schedule:actor:Practitioner",
+                                                            "Schedule:actor:PractitionerRole",
+                                                            "Schedule:actor:Location",
+                                                            "Schedule:actor:HealthcareService"}) Set<Include> includes
     );
-
-/*    List<Resource> search(FhirContext ctx,
-                          @OptionalParam(name = Slot.SP_IDENTIFIER) TokenParam identifier,
-                          @OptionalParam(name = Slot.SP_START) DateParam start,
-                          @OptionalParam(name = Slot.SP_STATUS) StringParam status,
-                          @OptionalParam(name = Slot.SP_RES_ID) StringParam id,
-                          @OptionalParam(name = Slot.SP_SCHEDULE) ReferenceParam schedule,
-                          @OptionalParam(name = "service") ReferenceParam service,
-                          @IncludeParam(allow= {"Slot:schedule","Schedule:actor:Practitioner","Schedule:actor:Location"}) Set<Include> includes
-    );*/
 
 }

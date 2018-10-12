@@ -14,6 +14,7 @@ import uk.nhs.careconnect.ri.dao.transforms.AppointmentEntityToFHIRAppointmentTr
 import uk.nhs.careconnect.ri.database.daointerface.*;
 import uk.nhs.careconnect.ri.database.entity.Terminology.ConceptEntity;
 import uk.nhs.careconnect.ri.database.entity.appointment.*;
+import uk.nhs.careconnect.ri.database.entity.patient.PatientEntity;
 import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleEntity;
 import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleIdentifier;
 import uk.nhs.careconnect.ri.database.entity.slot.SlotEntity;
@@ -253,24 +254,51 @@ public class AppointmentDao implements AppointmentRepository {
         }
 
 
-/*        for (Participant appointmentParticipant : appointment.getParticipant()) {
-            AppointmentIdentifier appointmentIdentifier = null;
+        if (appointment.hasParticipant()) {
 
-            for (AppointmentIdentifier orgSearch : appointmentEntity.getIdentifiers()) {
-                if (identifier.getSystem().equals(orgSearch.getSystemUri()) && identifier.getValue().equals(orgSearch.getValue())) {
-                    appointmentIdentifier = orgSearch;
-                    break;
-                }
+            for ( AppointmentParticipant appointmentParticipantDel : appointmentEntity.getParticipants()) {
+                em.remove(appointmentParticipantDel);
             }
-            if (appointmentIdentifier == null)  appointmentIdentifier = new AppointmentIdentifier();
 
-            appointmentIdentifier.setValue(identifier.getValue());
-            appointmentIdentifier.setSystem(codeSystemSvc.findSystem(identifier.getSystem()));
-            appointmentIdentifier.setAppointment(appointmentEntity);
-            em.persist(appointmentIdentifier);
-        }*/
+            for(Appointment.AppointmentParticipantComponent participant : appointment.getParticipant()) {
 
+                AppointmentParticipant appointmentParticipant = new AppointmentParticipant();
 
+                appointmentParticipant.setAppointment(appointmentEntity);
+
+                if (participant.hasType()){
+
+                    ConceptEntity code = conceptDao.findAddCode(participant.getType().get(0).getCoding().get(0));
+                    if (code != null) {
+                        appointmentParticipant.setType(code);
+                    }else {
+                        String message = "Code: Missing System/Code = "+participant.getType().get(0).getCoding().get(0).getSystem() +" code = "+participant.getType().get(0).getCoding().get(0).getCode();
+                        log.error(message);
+                        throw new OperationOutcomeException("Appointment",message, OperationOutcome.IssueType.CODEINVALID);
+                    }
+                }
+
+                if(participant.hasActor()){
+                    if(participant.getActor().getReference().contains("Patient")){
+                        PatientEntity patientEntity = patientDao.readEntity(ctx,new IdType("Patient/"+participant.getActor().getReference()));
+                        if(patientEntity != null){
+                            appointmentParticipant.setActor(patientEntity);
+                        }
+                    }
+                }
+
+                if (participant.hasRequired()){
+                    appointmentParticipant.setRequired(participant.getRequired());
+                }
+
+                if (participant.hasStatus()){
+                    appointmentParticipant.setStatus(participant.getStatus());
+                }
+
+                em.persist(appointmentParticipant);
+
+            }
+        }
 
         em.persist(appointmentEntity);
         return appointmentEntityToFHIRAppointmentTransformer.transform(appointmentEntity);

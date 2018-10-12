@@ -62,9 +62,6 @@ public class AppointmentEntity extends BaseResource {
     @Column(name = "COMMENT")
     private String comment;
 
-/*    @Column(name = "PARTICIPANT")
-    private BackboneElement participant;*/
-
     @OneToMany(mappedBy="appointment", targetEntity = AppointmentParticipant.class)
     Set<AppointmentParticipant> participants = new HashSet<>();
 

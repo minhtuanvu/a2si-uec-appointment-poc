@@ -8,6 +8,7 @@ import org.hl7.fhir.dstu3.model.Reference;
 import org.springframework.stereotype.Component;
 import uk.nhs.careconnect.ri.database.entity.appointment.AppointmentEntity;
 import uk.nhs.careconnect.ri.database.entity.appointment.AppointmentIdentifier;
+import uk.nhs.careconnect.ri.database.entity.appointment.AppointmentParticipant;
 import uk.nhs.careconnect.ri.database.entity.appointment.AppointmentReason;
 
 
@@ -33,9 +34,6 @@ public class AppointmentEntityToFHIRAppointmentTransformer implements Transforme
             }
         }
         appointment.setMeta(meta);
-
-        System.out.println("Appointment Metadata:" + appointment.getMeta());
-        System.out.println("Appointment Id: " + appointmentEntity.getId().toString());
 
         if(appointmentEntity.getId() != null){
             appointment.setId(appointmentEntity.getId().toString());
@@ -96,9 +94,35 @@ public class AppointmentEntityToFHIRAppointmentTransformer implements Transforme
             appointment.setComment(appointmentEntity.getComment());
         }
 
-/*        if(appointmentEntity.getParticipant() != null){
-            appointment.addParticipant().(appointmentEntity.getParticipant());
-        }*/
+        for (AppointmentParticipant appointmentParticipant : appointmentEntity.getParticipants()) {
+            Appointment.AppointmentParticipantComponent appointmentComponent = appointment.addParticipant();
+
+            if (appointmentParticipant.getActor() != null) {
+                appointmentComponent
+                        .setActor(new Reference("Patient/" + appointmentParticipant.getActor().getId()))
+                         .getActor().setDisplay(appointmentParticipant.getActor().getNames().get(0).getDisplayName());
+            }
+
+            if (appointmentParticipant.getType() != null) {
+                appointmentComponent.addType().addCoding()
+                        .setCode(appointmentParticipant.getType().getCode())
+                        .setSystem(appointmentParticipant.getType().getSystem())
+                        .setDisplay(appointmentParticipant.getType().getDisplay());
+            }
+
+            if (appointmentParticipant.getStatus() != null) {
+                appointmentComponent.addType().addCoding()
+                        //.setCode(appointmentParticipant.getStatus().getCode())
+                        .setSystem(appointmentParticipant.getStatus().getSystem())
+                        .setDisplay(appointmentParticipant.getStatus().getDisplay());
+            }
+
+            if(appointmentParticipant.getRequired() != null){
+                appointmentComponent.setRequired(Appointment.ParticipantRequired.REQUIRED);
+            }
+
+
+        }
 
         return appointment;
 
