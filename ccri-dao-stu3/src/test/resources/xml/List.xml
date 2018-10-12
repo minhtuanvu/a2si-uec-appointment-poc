@@ -1,0 +1,28 @@
+<List xmlns="http://hl7.org/fhir">
+  <meta>
+    <lastUpdated value="2018-08-07T07:48:01.182+00:00"/>
+  </meta>
+  <identifier>
+    <system value="urn:uuid:a9fcea7c-fcdf-4d17-a5e0-f26dda030b59"/>
+    <value value="23974652"/>
+  </identifier>
+  <status value="current"/>
+  <mode value="changes"/>
+  <subject>
+    <reference value="Patient/1"/>
+    <display value="Miss Bernie Kanfeld"/>
+  </subject>
+  <encounter>
+    <reference value="Encounter/1"/>
+  </encounter>
+  <date value="2012-11-25T11:17:00+00:00"/>
+  <source>
+    <reference value="Patient/1"/>
+    <display value="Miss Bernie Kanfeld"/>
+  </source>
+  <entry>
+    <item>
+      <reference value="Condition/2"/>
+    </item>
+  </entry>
+</List>

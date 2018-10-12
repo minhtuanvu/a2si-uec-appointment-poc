@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.nhs.careconnect.ri</groupId>
+    <artifactId>ccri-parent</artifactId>
+    <version>3.7.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+
+     <!-- https://docs.spring.io/spring-boot/docs/2.0.3.RELEASE/reference/html/appendix-dependency-versions.html -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.15.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <care-connect-version>3.7.0-SNAPSHOT</care-connect-version>
+        <hapi-fhir-version>3.5.0</hapi-fhir-version>
+        <cucumber-version>1.2.5</cucumber-version>
+        <slf4j>1.7.25</slf4j>
+        <spring-boot>1.5.15.RELEASE</spring-boot>
+        <spring-version>5.0.3.RELEASE</spring-version>
+        <spring_security_version>1.0.8.RELEASE</spring_security_version>
+
+        <thymeleaf-version>3.0.7.RELEASE</thymeleaf-version>
+
+        <junit-version>4.12</junit-version>
+        <hamcrest-version>2.0.0.0</hamcrest-version>
+        <mockito-version>1.10.19</mockito-version>
+
+        <camel-version>2.21.2</camel-version>
+        <phloc_commons_version>4.4.11</phloc_commons_version>
+
+        <hibernate_version>5.3.6.Final</hibernate_version>
+        <hibernate_validator_version>5.4.1.Final</hibernate_validator_version>
+        <!-- Update lucene version when you update hibernate-search version -->
+        <hibernate_search_version>5.10.3.Final</hibernate_search_version>
+
+        <!-- Disable Dependency Location Checking for Site Report -->
+        <dependency.locations.enabled>false</dependency.locations.enabled>
+
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>uk.org.hl7.fhir</groupId>
+            <artifactId>cc-core</artifactId>
+            <version>${care-connect-version}</version>
+        </dependency>
+
+<!--
+       <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+-->
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-server</artifactId>
+            <version>${hapi-fhir-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-structures-dstu3</artifactId>
+            <version>${hapi-fhir-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>hapi-fhir-validation-resources-dstu3</artifactId>
+            <version>${hapi-fhir-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.phloc</groupId>
+            <artifactId>phloc-commons</artifactId>
+            <version>${phloc_commons_version}</version>
+        </dependency>
+
+
+    </dependencies>
+    <build>
+        <pluginManagement>
+            <plugins>
+
+
+                <!-- Use FailSafe plugin to run Integration Tests
+                  This will be executed by running the 'verify' target.
+                  The pre & post integration tests targets can then be used to setup & teardown the Integration Test
+                  environment.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.22.0</version>
+                    <executions>
+                        <execution>
+                            <id>integration-test</id>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.20.1</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <alwaysGenerateSurefireReport>false</alwaysGenerateSurefireReport>
+                    <showSuccess>false</showSuccess>
+                    <aggregate>true</aggregate>
+                    <!--also set this to link to generated source reports-->
+                    <linkXRef>true</linkXRef>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <modules>
+
+        <module>cc-core</module>
+        <module>ccri-dataload</module>
+        <module>ccri-database</module>
+        <module>ccri-dao-stu3</module>
+        <module>ccri-fhirserver-common</module>
+        <module>ccri-fhirgateway-common</module>
+        <module>ccri</module>
+        <module>ccri-fhir</module>
+        <module>ccri-smartonfhir</module>
+        <module>ccri-fhirserver</module>
+
+<!--        <module>ccri-management-app</module>
+        <module>ccri-management</module>-->
+
+    </modules>
+<!--
+    <distributionManagement>
+        <repository>
+            <id>bintray-kevinmayfield-careconnect</id>
+            <name>kevinmayfield-careconnect</name>
+            <url>https://api.bintray.com/maven/kevinmayfield/careconnect/CareConnectPkg/;publish=1</url>
+        </repository>
+    </distributionManagement> -->
+</project>

@@ -1,0 +1,61 @@
+<DocumentReference>
+    <id value="0353e505-f7be-4c20-8f4e-337e79a32c51"/>
+    <meta>
+        <profile value="https://fhir.nhs.uk/STU3/StructureDefinition/NRLS-DocumentReference-1"/>
+    </meta>
+    <identifier>
+        <system value="fhir.leedsth.nhs.uk/Id/documentReference"/>
+        <value value="a73b7b0f-7301-498b-8db3-ca2e0c3a16a5"/>
+    </identifier>
+    <status value="current"/>
+    <type>
+        <coding>
+            <system value="http://snomed.info/sct"/>
+            <code value="718347000"/>
+            <display value="Mental health care plan"/>
+        </coding>
+    </type>
+    <subject>
+        <reference value="Patient/1170"/>
+    </subject>
+    <created value="2016-03-08T15:26:00+01:00"/>
+    <indexed value="2016-03-08T15:26:01+01:00"/>
+    <author>
+        <reference value="Practitioner/1"/>
+    </author>
+    <custodian>
+        <reference value="Organization/1"/>
+    </custodian>
+    <content>
+        <attachment>
+            <contentType value="application/pdf"/>
+            <url value="http://127.0.0.1:8080/careconnect-gateway/STU3/Binary/0161e141-0098-44e5-a793-6e74c619c594"/>
+            <title value="Mental health Care Plan Report"/>
+            <creation value="2016-03-08T15:26:00+01:00"/>
+        </attachment>
+    </content>
+    <context> 
+        <encounter> 
+            <reference value="Encounter/1170"/> 
+        </encounter> 
+        <period> 
+            <start value="2004-12-23T08:00:00+11:00"/> 
+            <end value="2004-12-23T08:01:00+11:00"/> 
+        </period> 
+        <facilityType> 
+            <coding> 
+                <system value="http://snomed.info/sct"/>
+                <code value="700232004"/>
+                <display value="General medical service"/>
+            </coding> 
+        </facilityType> 
+        <practiceSetting> 
+            <coding> 
+                <system value="http://snomed.info/sct"/> 
+                <code value="394582007"/> 
+                <display value="Dermatology"/> 
+            </coding> 
+        </practiceSetting> 
+        
+    </context> 
+</DocumentReference>
