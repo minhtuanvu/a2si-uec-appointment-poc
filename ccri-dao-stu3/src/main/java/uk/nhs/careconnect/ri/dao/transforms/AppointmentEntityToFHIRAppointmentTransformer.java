@@ -111,10 +111,7 @@ public class AppointmentEntityToFHIRAppointmentTransformer implements Transforme
             }
 
             if (appointmentParticipant.getStatus() != null) {
-                appointmentComponent.addType().addCoding()
-                        //.setCode(appointmentParticipant.getStatus().getCode())
-                        .setSystem(appointmentParticipant.getStatus().getSystem())
-                        .setDisplay(appointmentParticipant.getStatus().getDisplay());
+                appointmentComponent.setStatus(Appointment.ParticipationStatus.ACCEPTED);
             }
 
             if(appointmentParticipant.getRequired() != null){
