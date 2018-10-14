@@ -3,7 +3,7 @@ services:
 
   ccrisql:
     container_name: ccrisql
-    image: thorlogic/ccri-sql${IMAGE_TAG}
+    image: a2siuecpoc/ccri-sql${IMAGE_TAG}
     environment:
     - POSTGRES_DB=careconnect
     - POSTGRES_USER=${MYSQL_DB_USER}
@@ -15,7 +15,7 @@ services:
 
   ccriserver:
     container_name: ccriserver
-    image: snoopy2k18/ccri-fhirserver${IMAGE_TAG}
+    image: a2siuecpoc/ccri-fhirserver${IMAGE_TAG}
     build: ccri-fhirserver
     depends_on:
       - ccrisql
@@ -49,7 +49,7 @@ services:
   ccrifhir:
     container_name: ccrifhir
     build: ccri-fhir
-    image: snoopy2k18/ccri-fhir${IMAGE_TAG}
+    image: a2siuecpoc/ccri-fhir${IMAGE_TAG}
     environment:
       - fhir.restserver.serverBase=http4://ccriserver:8186/ccri-fhirserver/STU3?throwExceptionOnFailure=false&bridgeEndpoint=true
       - fhir.restserver.edmsBase=http4://ccridocument:8181/STU3?throwExceptionOnFailure=false&bridgeEndpoint=true
@@ -75,7 +75,7 @@ services:
 
   ccridataload:
     container_name: ccridataload
-    image: snoopy2k18/ccri-dataload${IMAGE_TAG}
+    image: a2siuecpoc/ccri-dataload${IMAGE_TAG}
     build: ccri-dataload
     depends_on:
     - ccriserver
@@ -100,7 +100,7 @@ services:
 
   ccridocument:
      container_name: ccridocument
-     image: thorlogic/ccri-document${IMAGE_TAG}
+     image: a2siuecpoc/ccri-document${IMAGE_TAG}
      depends_on:
        - ccrimongo
      links:
@@ -121,7 +121,7 @@ services:
 
   ccricat:
     container_name: ccricat
-    image: thorlogic/ccri-cat${IMAGE_TAG}
+    image: a2siuecpoc/ccri-cat${IMAGE_TAG}
     environment:
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
       - KEYCLOAK_CLIENT_ID=ccri-cat
@@ -138,7 +138,7 @@ services:
 
   ccriintegration:
     container_name: ccriintegration
-    image: thorlogic/ccri-tie${IMAGE_TAG}
+    image: a2siuecpoc/ccri-tie${IMAGE_TAG}
     depends_on:
     - ccriserver
     environment:
@@ -157,7 +157,7 @@ services:
   ccriui:
     container_name: ccriui
     build: ccri
-    image: snoopy2k18/ccri${IMAGE_TAG}
+    image: a2siuecpoc/ccri${IMAGE_TAG}
     environment:
     - datasource.ui.serverBase=http://${FHIR_SERVER_BASE_HOST}:8183/ccri-fhir/STU3
     - fhir.resource.serverBase=http://${FHIR_SERVER_BASE_HOST}:8105/ccri-fhir/STU3
