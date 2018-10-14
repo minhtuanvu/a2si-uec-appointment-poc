@@ -6,10 +6,7 @@ import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
-import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import org.hl7.fhir.dstu3.model.*;
-import org.hl7.fhir.dstu3.model.Schedule;
-import org.hl7.fhir.dstu3.model.codesystems.OperationOutcomeEnumFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +17,15 @@ import uk.nhs.careconnect.ri.dao.transforms.*;
 import uk.nhs.careconnect.ri.database.daointerface.*;
 import uk.nhs.careconnect.ri.database.entity.Terminology.ConceptEntity;
 import uk.nhs.careconnect.ri.database.entity.healthcareService.HealthcareServiceEntity;
-import uk.nhs.careconnect.ri.database.entity.practitioner.PractitionerEntity;
 import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleActor;
 import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleEntity;
-import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleActor;
 import uk.nhs.careconnect.ri.database.entity.slot.SlotEntity;
 import uk.nhs.careconnect.ri.database.entity.slot.SlotIdentifier;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.transaction.Transactional;
 import java.net.URI;
@@ -79,8 +77,9 @@ public class SlotDao implements SlotRepository {
     @Autowired
     private CodeSystemRepository codeSystemSvc;
 
-    private static final Logger log = LoggerFactory.getLogger(SlotDao.class);
+    List<Resource> results = new ArrayList<>();
 
+    private static final Logger log = LoggerFactory.getLogger(SlotDao.class);
 
     @Override
     public void save(FhirContext ctx, SlotEntity slotEntity) {
@@ -181,8 +180,9 @@ public class SlotDao implements SlotRepository {
 
             if(scheduleEntity != null){
                 slotEntity.setSchedule(scheduleEntity);
+            }else{
+                System.out.println("Schedule does not exist");
             }
-
 
         }
 
@@ -235,14 +235,15 @@ public class SlotDao implements SlotRepository {
     @Override
     public List<Resource> searchSlot(FhirContext ctx, TokenParam identifier, DateParam start, StringParam status, StringParam res_id, ReferenceParam schedule, ReferenceParam service,Set<Include> includes) {
         List<SlotEntity> qryResults = searchSlotEntity(ctx, identifier, start, status, res_id, schedule, service, includes);
-        List<Resource> results = new ArrayList<>();
-
-        for (SlotEntity slotEntity : qryResults) {
-            Slot slot = slotEntityToFHIRSlotTransformer.transform(slotEntity);
-            results.add(slot);
-        }
+        //List<Resource> results = new ArrayList<>();
 
 /*        for (SlotEntity slotEntity : qryResults) {
+            Slot slot = slotEntityToFHIRSlotTransformer.transform(slotEntity);
+            results.add(slot);
+
+        }*/
+
+        for (SlotEntity slotEntity : qryResults) {
             Slot slot;
             if (slotEntity.getResource() != null) {
                 slot = (Slot) ctx.newJsonParser().parseResource(slotEntity.getResource());
@@ -253,7 +254,7 @@ public class SlotDao implements SlotRepository {
                 em.persist(slotEntity);
             }
             results.add(slot);
-        }*/
+        }
 
 
         if (includes != null) {
@@ -265,44 +266,58 @@ public class SlotDao implements SlotRepository {
                     switch (include.getValue()) {
 
                         case "Slot:schedule":
-                            ScheduleEntity sched = slotEntity.getSchedule();
-
-                            if (sched != null) {
-                                if(!results.contains(sched)){
-                                    results.add(scheduleEntityToFHIRScheduleTransformer.transform(sched));
-                                }
+                            ScheduleEntity scheduleEntity = slotEntity.getSchedule();
+                            if(scheduleEntity != null) {
+                                resultsAddIfNotPresent(scheduleEntityToFHIRScheduleTransformer.transform(scheduleEntity));
                             }
                             break;
 
                         case "Schedule:actor:Practitioner":
-                            for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
-                                if (actor.getPractitionerEntity() != null) {
-                                    results.add(practitionerEntityToFHIRPractitionerTransformer.transform(actor.getPractitionerEntity()));
+                            if(slotEntity != null && slotEntity.getSchedule() != null) {
+                                if(slotEntity.getSchedule().getActors() != null) {
+                                    for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
+                                        if (actor.getPractitionerEntity() != null) {
+                                            resultsAddIfNotPresent(practitionerEntityToFHIRPractitionerTransformer.transform(actor.getPractitionerEntity()));
+
+                                        }
+                                    }
                                 }
                             }
                             break;
 
                         case "Schedule:actor:PractitionerRole":
-                            for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
-                                if (actor.getPractitionerRole() != null) {
-                                    results.add(practitionerRoleToFHIRPractitionerRoleTransformer.transform(actor.getPractitionerRole()));
+                            if(slotEntity != null && slotEntity.getSchedule() != null) {
+                                if(slotEntity.getSchedule().getActors() != null) {
+                                    for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
+                                        if (actor.getPractitionerRole() != null) {
+                                            resultsAddIfNotPresent(practitionerRoleToFHIRPractitionerRoleTransformer.transform(actor.getPractitionerRole()));
+                                        }
+                                    }
                                 }
                             }
                             break;
 
 
                         case "Schedule:actor:Location":
-                            for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
-                                if (actor.getLocationEntity() != null) {
-                                    results.add(locationEntityToFHIRLocationTransformer.transform(actor.getLocationEntity()));
+                            if(slotEntity != null && slotEntity.getSchedule() != null) {
+                                if (slotEntity.getSchedule().getActors() != null) {
+                                    for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
+                                        if (actor.getLocationEntity() != null) {
+                                            resultsAddIfNotPresent(locationEntityToFHIRLocationTransformer.transform(actor.getLocationEntity()));
+                                        }
+                                    }
                                 }
                             }
                             break;
 
                         case "Schedule:actor:HealthcareService":
-                            for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
-                                if (actor.getHealthcareServiceEntity() != null) {
-                                    results.add(healthcareServiceEntityToFHIRHealthcareServiceTransformer.transform(actor.getHealthcareServiceEntity()));
+                            if(slotEntity != null && slotEntity.getSchedule() != null) {
+                                if (slotEntity.getSchedule().getActors() != null) {
+                                    for (ScheduleActor actor : slotEntity.getSchedule().getActors()) {
+                                        if (actor.getHealthcareServiceEntity() != null) {
+                                            resultsAddIfNotPresent(healthcareServiceEntityToFHIRHealthcareServiceTransformer.transform(actor.getHealthcareServiceEntity()));
+                                        }
+                                    }
                                 }
                             }
                             break;
@@ -311,8 +326,15 @@ public class SlotDao implements SlotRepository {
                 }
             }
         }
-
         return results;
+    }
+
+    private void resultsAddIfNotPresent(Resource resource) {
+        boolean found = false;
+        for (Resource resource1 : results) {
+            if (resource1.getId().equals(resource.getId()) && resource.getClass().getSimpleName().equals(resource1.getClass().getSimpleName())) found=true;
+        }
+        if (!found) results.add(resource);
     }
 
     @Override
@@ -354,11 +376,6 @@ public class SlotDao implements SlotRepository {
             Predicate p = builder.equal(root.get("id"),resid.getValue());
             predList.add(p);
         }
-
-/*        if (status != null) {
-            Predicate p = builder.equal(root.get("Status"),status.getValue());
-            predList.add(p);
-        }*/
 
         if (status != null) {
 
@@ -403,13 +420,8 @@ public class SlotDao implements SlotRepository {
 
             if (daoutils.isNumeric(service.getIdPart())) {
                 Join<SlotEntity, ScheduleEntity> join = root.join("schedule" , JoinType.LEFT);
-                //Join<ScheduleEntity, ScheduleActor> join1 = join.join("schedule" , JoinType.LEFT);
                 Join<ScheduleEntity, ScheduleActor> join1 = join.join("actors" , JoinType.LEFT);
-                //Join<ScheduleActor, HealthcareServiceEntity> join2 = join1.join("healthcareServiceEntity" , JoinType.LEFT);
                 Join<ScheduleActor, HealthcareServiceEntity> join2 = join1.join("healthcareServiceEntity" , JoinType.LEFT);
-                System.out.println("join :" + join);
-                System.out.println("join1 :" + join1);
-                System.out.println("join2 :" + join2);
 
                 Predicate p = builder.equal(join2.get("id"), service.getIdPart());
                 predList.add(p);
@@ -421,12 +433,9 @@ public class SlotDao implements SlotRepository {
             }
         }
 
-
-
         Predicate[] predArray = new Predicate[predList.size()];
         predList.toArray(predArray);
-        System.out.println("PredList:" + predList);
-        System.out.println("predArray:" + predArray);
+
         if (predList.size()>0)
         {
             criteria.select(root).where(predArray);
