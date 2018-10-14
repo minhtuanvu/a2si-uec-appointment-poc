@@ -138,7 +138,7 @@ services:
 
   ccriintegration:
     container_name: ccriintegration
-    image: a2siuecpoc/ccri-tie${IMAGE_TAG}
+    image: thorlogic/ccri-tie${IMAGE_TAG}
     depends_on:
     - ccriserver
     environment:
