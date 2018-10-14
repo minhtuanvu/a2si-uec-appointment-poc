@@ -100,7 +100,7 @@ services:
 
   ccridocument:
      container_name: ccridocument
-     image: a2siuecpoc/ccri-document${IMAGE_TAG}
+     image: thorlogic/ccri-document${IMAGE_TAG}
      depends_on:
        - ccrimongo
      links:
