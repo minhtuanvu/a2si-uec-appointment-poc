@@ -121,7 +121,7 @@ services:
 
   ccricat:
     container_name: ccricat
-    image: a2siuecpoc/ccri-cat${IMAGE_TAG}
+    image: thorlogic/ccri-cat${IMAGE_TAG}
     environment:
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
       - KEYCLOAK_CLIENT_ID=ccri-cat
