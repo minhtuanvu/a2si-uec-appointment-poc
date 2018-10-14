@@ -3,7 +3,7 @@ services:
 
   ccrisql:
     container_name: ccrisql
-    image: a2siuecpoc/ccri-sql${IMAGE_TAG}
+    image: thorlogic/ccri-sql${IMAGE_TAG}
     environment:
     - POSTGRES_DB=careconnect
     - POSTGRES_USER=${MYSQL_DB_USER}
