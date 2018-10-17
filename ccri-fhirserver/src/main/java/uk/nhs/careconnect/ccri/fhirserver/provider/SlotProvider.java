@@ -102,6 +102,7 @@ public class SlotProvider implements ICCResourceProvider {
                                      @OptionalParam(name = Slot.SP_RES_ID) StringParam id,
                                      @OptionalParam(name =Slot.SP_SCHEDULE) ReferenceParam schedule,
                                      @OptionalParam(name = "service") ReferenceParam service,
+                                     @OptionalParam(name = "serviceidentifier") TokenParam serviceIdentifier,
                                      //@IncludeParam(allow = {"*"}) Set<Include> includes,
                                      @IncludeParam(allow= {"Slot:schedule",
                                                            "Schedule:actor:Practitioner",
@@ -111,7 +112,7 @@ public class SlotProvider implements ICCResourceProvider {
     )
 
     {
-        return slotDao.searchSlot(ctx, identifier,start,status,id,schedule,service,includes);
+        return slotDao.searchSlot(ctx, identifier,start,status,id,schedule,service,serviceIdentifier,includes);
     }
 
     @Read()

@@ -17,6 +17,7 @@ import uk.nhs.careconnect.ri.dao.transforms.*;
 import uk.nhs.careconnect.ri.database.daointerface.*;
 import uk.nhs.careconnect.ri.database.entity.Terminology.ConceptEntity;
 import uk.nhs.careconnect.ri.database.entity.healthcareService.HealthcareServiceEntity;
+import uk.nhs.careconnect.ri.database.entity.healthcareService.HealthcareServiceIdentifier;
 import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleActor;
 import uk.nhs.careconnect.ri.database.entity.schedule.ScheduleEntity;
 import uk.nhs.careconnect.ri.database.entity.slot.SlotEntity;
@@ -60,7 +61,6 @@ public class SlotDao implements SlotRepository {
     @Autowired
     HealthcareServiceEntityToFHIRHealthcareServiceTransformer healthcareServiceEntityToFHIRHealthcareServiceTransformer;
 
-
     @Autowired
     @Lazy
     ConceptRepository conceptDao;
@@ -77,7 +77,7 @@ public class SlotDao implements SlotRepository {
     @Autowired
     private CodeSystemRepository codeSystemSvc;
 
-    List<Resource> results = new ArrayList<>();
+    List<Resource> results = null;
 
     private static final Logger log = LoggerFactory.getLogger(SlotDao.class);
 
@@ -135,7 +135,7 @@ public class SlotDao implements SlotRepository {
                     log.debug(spiltStr[1]);
 
                     //List<Slot> results = searchSlot(ctx,  new TokenParam().setValue(spiltStr[1]).setSystem("https://tools.ietf.org/html/rfc4122"),null, null,null,null,null,null); //,null
-                    List<SlotEntity> results = searchSlotEntity(ctx,  new TokenParam().setValue(spiltStr[1]).setSystem("https://tools.ietf.org/html/rfc4122"),null, null,null,null,null,null); //,null
+                    List<SlotEntity> results = searchSlotEntity(ctx,  new TokenParam().setValue(spiltStr[1]).setSystem("https://tools.ietf.org/html/rfc4122"),null, null,null,null,null,null,null); //,null
                     for (SlotEntity con : results) {
                         slotEntity = con;
                         break;
@@ -153,79 +153,64 @@ public class SlotDao implements SlotRepository {
             slotEntity = new SlotEntity();
         }
 
-        //em.persist(slotEntity);
+        if(slot.hasSchedule()) {
 
-         if (slot.hasServiceCategory()) {
+            try{
 
-             ConceptEntity code = conceptDao.findCode(slot.getServiceCategory().getCoding().get(0));
+                ScheduleEntity scheduleEntity = (ScheduleEntity) scheduleDao.readEntity(ctx, new IdType(slot.getSchedule().getReference()));
+                if (scheduleEntity != null) {
+                    slotEntity.setSchedule(scheduleEntity);
+                }else {
+                    String message = "Schedule/"+slot.getSchedule().getReference() + " does not exist";
+                    log.error(message);
+                    throw new OperationOutcomeException("Slot",message, OperationOutcome.IssueType.CODEINVALID);
+                }
 
-             if (code != null) {
+            }catch(Exception ex){
+
+            }
+
+        }
+
+        if (slot.hasServiceCategory()) {
+
+            ConceptEntity code = conceptDao.findCode(slot.getServiceCategory().getCoding().get(0));
+
+            if (code != null) {
                 slotEntity.setServiceCategory(code);
-             }
-         }
+            }
+        }
 
-        if(slot.hasAppointmentType()){
+        if (slot.hasAppointmentType()) {
 
             ConceptEntity code = conceptDao.findCode(slot.getAppointmentType().getCoding().get(0));
 
-            if(code != null){
+            if (code != null) {
                 slotEntity.setAppointmentType(code);
             }
 
         }
 
-        if(slot.hasSchedule()){
-
-            ScheduleEntity scheduleEntity = (ScheduleEntity) scheduleDao.readEntity(ctx, new IdType(slot.getSchedule().getReference()));
-
-            if(scheduleEntity != null){
-                slotEntity.setSchedule(scheduleEntity);
-            }else{
-                System.out.println("Schedule does not exist");
-            }
-
-        }
-
-        if(slot.hasStatus()) {
+        if (slot.hasStatus()) {
             log.debug("Slot.Status" + slot.getStatus());
             slotEntity.setStatus(slot.getStatus());
-        } else{
+        } else {
             slotEntity.setStatus(null);
         }
 
-        if(slot.hasStart()) {
+        if (slot.hasStart()) {
 
             slotEntity.setStart(slot.getStart());
-        } else{
+        } else {
             slotEntity.setStart(null);
         }
-
-        if(slot.hasEnd()) {
+        if (slot.hasEnd()) {
             slotEntity.setEnd(slot.getEnd());
-        } else{
+        } else {
             slotEntity.setEnd(null);
         }
 
         em.persist(slotEntity);
-
-        log.debug("Slot.saveIdentifier");
-        for (Identifier identifier : slot.getIdentifier()) {
-            SlotIdentifier slotIdentifier = null;
-
-            for (SlotIdentifier orgSearch : slotEntity.getIdentifiers()) {
-                if (identifier.getSystem().equals(orgSearch.getSystemUri()) && identifier.getValue().equals(orgSearch.getValue())) {
-                    slotIdentifier = orgSearch;
-                    break;
-                }
-            }
-            if (slotIdentifier == null)  slotIdentifier = new SlotIdentifier();
-
-            slotIdentifier.setValue(identifier.getValue());
-            slotIdentifier.setSystem(codeSystemSvc.findSystem(identifier.getSystem()));
-            slotIdentifier.setSlot(slotEntity);
-            em.persist(slotIdentifier);
-            slotEntity.getIdentifiers().add(slotIdentifier); // KGM add the identifier to the slot so transform includes the slot 2/10/2018
-        }
 
         log.info("Slot.Transform");
         return slotEntityToFHIRSlotTransformer.transform(slotEntity);
@@ -233,17 +218,18 @@ public class SlotDao implements SlotRepository {
     }
 
     @Override
-    public List<Resource> searchSlot(FhirContext ctx, TokenParam identifier, DateParam start, StringParam status, StringParam res_id, ReferenceParam schedule, ReferenceParam service,Set<Include> includes) {
-        List<SlotEntity> qryResults = searchSlotEntity(ctx, identifier, start, status, res_id, schedule, service, includes);
-        //List<Resource> results = new ArrayList<>();
+    public List<Resource> searchSlot(FhirContext ctx, TokenParam identifier, DateParam start, StringParam status, StringParam res_id, ReferenceParam schedule, ReferenceParam service,TokenParam serviceIdentifier, Set<Include> includes) {
+        List<SlotEntity> qryResults = searchSlotEntity(ctx, identifier, start, status, res_id, schedule, service, serviceIdentifier, includes);
 
-/*        for (SlotEntity slotEntity : qryResults) {
+        results = new ArrayList<>();
+
+        for (SlotEntity slotEntity : qryResults) {
             Slot slot = slotEntityToFHIRSlotTransformer.transform(slotEntity);
             results.add(slot);
 
-        }*/
+        }
 
-        for (SlotEntity slotEntity : qryResults) {
+/*        for (SlotEntity slotEntity : qryResults) {
             Slot slot;
             if (slotEntity.getResource() != null) {
                 slot = (Slot) ctx.newJsonParser().parseResource(slotEntity.getResource());
@@ -254,7 +240,7 @@ public class SlotDao implements SlotRepository {
                 em.persist(slotEntity);
             }
             results.add(slot);
-        }
+        }*/
 
 
         if (includes != null) {
@@ -338,7 +324,7 @@ public class SlotDao implements SlotRepository {
     }
 
     @Override
-    public List<SlotEntity> searchSlotEntity(FhirContext ctx, TokenParam identifier, DateParam start, StringParam status, StringParam resid, ReferenceParam schedule,ReferenceParam service,Set<Include> includes) {
+    public List<SlotEntity> searchSlotEntity(FhirContext ctx, TokenParam identifier, DateParam start, StringParam status, StringParam resid, ReferenceParam schedule,ReferenceParam service,TokenParam serviceIdentifier,Set<Include> includes) {
         List<SlotEntity> qryResults = null;
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -395,7 +381,6 @@ public class SlotDao implements SlotRepository {
 
             }
 
-
             Predicate p = builder.equal(root.get("Status"), intStatus);
             predList.add(p);
 
@@ -416,6 +401,29 @@ public class SlotDao implements SlotRepository {
             }
         }
 
+        if (serviceIdentifier != null) {
+
+            if (daoutils.isNumeric(serviceIdentifier.getValue())) {
+
+                Join<SlotEntity, ScheduleEntity> join = root.join("schedule" , JoinType.LEFT);
+                Join<ScheduleEntity, ScheduleActor> join1 = join.join("actors" , JoinType.LEFT);
+                Join<ScheduleActor, HealthcareServiceEntity> join2 = join1.join("healthcareServiceEntity" , JoinType.LEFT);
+                Join<HealthcareServiceEntity, HealthcareServiceIdentifier> join3 = join2.join("identifiers" , JoinType.LEFT);
+
+                //System.out.println("serviceIdentifier.getValue():" + serviceIdentifier.getValue());
+                //System.out.println("join3 : " + join3);
+
+                Predicate p = builder.equal(join3.get("identifierId"), serviceIdentifier.getValue());
+                predList.add(p);
+            } else {
+                Join<SlotEntity, ScheduleEntity> join = root.join("schedule", JoinType.LEFT);
+
+                Predicate p = builder.equal(join.get("identifierId"), -1);
+                predList.add(p);
+            }
+
+        }
+
         if (service != null) {
 
             if (daoutils.isNumeric(service.getIdPart())) {
@@ -431,6 +439,7 @@ public class SlotDao implements SlotRepository {
                 Predicate p = builder.equal(join.get("id"), -1);
                 predList.add(p);
             }
+
         }
 
         Predicate[] predArray = new Predicate[predList.size()];
@@ -462,6 +471,11 @@ public class SlotDao implements SlotRepository {
         CriteriaBuilder qb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = qb.createQuery(Long.class);
         cq.select(qb.count(cq.from(SlotEntity.class)));
+        System.out.println("Counting resources : " + em.createQuery(cq).getSingleResult());
         return em.createQuery(cq).getSingleResult();
     }
+
+
+
+
 }

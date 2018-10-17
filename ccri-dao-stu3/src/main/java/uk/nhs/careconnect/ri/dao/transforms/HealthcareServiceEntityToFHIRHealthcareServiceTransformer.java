@@ -36,9 +36,13 @@ public class HealthcareServiceEntityToFHIRHealthcareServiceTransformer implement
 
         for(HealthcareServiceIdentifier identifier : serviceEntity.getIdentifiers())
         {
-            service.addIdentifier()
-                    .setSystem(identifier.getSystem().getUri())
-                    .setValue(identifier.getValue());
+            if(identifier.getSystem() != null){
+
+                service.addIdentifier()
+                        .setSystem(identifier.getSystem().getUri())
+                        .setValue(identifier.getValue());
+            }
+
         }
 
         if (serviceEntity.getActive() != null) {
