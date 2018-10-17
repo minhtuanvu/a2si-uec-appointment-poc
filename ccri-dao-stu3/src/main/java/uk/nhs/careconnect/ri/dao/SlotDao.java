@@ -410,15 +410,17 @@ public class SlotDao implements SlotRepository {
                 Join<ScheduleActor, HealthcareServiceEntity> join2 = join1.join("healthcareServiceEntity" , JoinType.LEFT);
                 Join<HealthcareServiceEntity, HealthcareServiceIdentifier> join3 = join2.join("identifiers" , JoinType.LEFT);
 
-                //System.out.println("serviceIdentifier.getValue():" + serviceIdentifier.getValue());
-                //System.out.println("join3 : " + join3);
+                System.out.println("serviceIdentifier.getValue():" + serviceIdentifier.getValue());
+                System.out.println("join3 : " + join3);
 
-                Predicate p = builder.equal(join3.get("identifierId"), serviceIdentifier.getValue());
+                Predicate p = builder.equal(join3.get("value"), serviceIdentifier.getValue());
                 predList.add(p);
+
             } else {
+
                 Join<SlotEntity, ScheduleEntity> join = root.join("schedule", JoinType.LEFT);
 
-                Predicate p = builder.equal(join.get("identifierId"), -1);
+                Predicate p = builder.equal(join.get("value"), -1);
                 predList.add(p);
             }
 
@@ -471,7 +473,6 @@ public class SlotDao implements SlotRepository {
         CriteriaBuilder qb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = qb.createQuery(Long.class);
         cq.select(qb.count(cq.from(SlotEntity.class)));
-        System.out.println("Counting resources : " + em.createQuery(cq).getSingleResult());
         return em.createQuery(cq).getSingleResult();
     }
 
