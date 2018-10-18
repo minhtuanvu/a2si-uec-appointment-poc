@@ -97,10 +97,11 @@ public class AppointmentEntityToFHIRAppointmentTransformer implements Transforme
         for (AppointmentParticipant appointmentParticipant : appointmentEntity.getParticipants()) {
             Appointment.AppointmentParticipantComponent appointmentComponent = appointment.addParticipant();
 
+
             if (appointmentParticipant.getActor() != null) {
                 appointmentComponent
-                        .setActor(new Reference("Patient/" + appointmentParticipant.getActor().getId()))
-                         .getActor().setDisplay(appointmentParticipant.getActor().getNames().get(0).getDisplayName());
+                        .setActor(new Reference("Patient/" + appointmentParticipant.getActor().getId()));
+                        //.getActor().setDisplay(appointmentParticipant.getActor().getNames().get(0).getDisplayName());
             }
 
             if (appointmentParticipant.getType() != null) {
@@ -117,7 +118,6 @@ public class AppointmentEntityToFHIRAppointmentTransformer implements Transforme
             if(appointmentParticipant.getRequired() != null){
                 appointmentComponent.setRequired(Appointment.ParticipantRequired.REQUIRED);
             }
-
 
         }
 

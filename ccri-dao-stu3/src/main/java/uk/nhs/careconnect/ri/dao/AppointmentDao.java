@@ -230,11 +230,6 @@ public class AppointmentDao implements AppointmentRepository {
             if (codeEntity != null) appointmentEntity.setReason(codeEntity);
         }
 
-        //Appointment appointment = new Appointment();
-        Appointment.AppointmentParticipantComponent appointmentParticipantComponent = appointment.addParticipant();
-        appointmentParticipantComponent.setActor(new Reference("Patient/1"));
-
-
         log.debug("Appointment.saveSlot");
         for (Reference reference : appointment.getSlot()) {
             SlotEntity slotEntity = slotDao.readEntity(ctx, new IdType(reference.getReference()));
@@ -261,6 +256,9 @@ public class AppointmentDao implements AppointmentRepository {
             }
 
             for(Appointment.AppointmentParticipantComponent participant : appointment.getParticipant()) {
+
+
+                System.out.println("participant = " + participant);
 
                 AppointmentParticipant appointmentParticipant = new AppointmentParticipant();
 
