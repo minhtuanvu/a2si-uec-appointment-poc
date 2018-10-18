@@ -215,7 +215,7 @@ public class SlotResourceProvider implements IResourceProvider {
         if (resource instanceof Bundle) {
             bundle = (Bundle) resource;
             for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
-                Slot patient = (Slot) entry.getResource();
+                Resource patient = entry.getResource();
                 results.add(patient);
             }
         } else {
