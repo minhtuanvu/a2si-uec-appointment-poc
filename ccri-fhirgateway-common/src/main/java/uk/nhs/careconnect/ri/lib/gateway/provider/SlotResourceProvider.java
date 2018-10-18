@@ -185,7 +185,13 @@ public class SlotResourceProvider implements IResourceProvider {
                                  @OptionalParam(name = Slot.SP_STATUS) StringParam status,
                                  @OptionalParam(name = Slot.SP_RES_ID) TokenParam id,
                                  @OptionalParam(name =Slot.SP_SCHEDULE) ReferenceParam schedule,
-                                 @IncludeParam(allow = { "Slot:schedule", "Schedule:actor:service"}) Set<Include> theIncludes
+                                 @OptionalParam(name = "service") ReferenceParam service,
+                                 @OptionalParam(name = "serviceidentifier") TokenParam serviceIdentifier,
+                                 @IncludeParam(allow= {"Slot:schedule",
+                                         "Schedule:actor:Practitioner",
+                                         "Schedule:actor:PractitionerRole",
+                                         "Schedule:actor:Location",
+                                         "Schedule:actor:HealthcareService"}) Set<Include> includes
 
     ) throws Exception
     {
