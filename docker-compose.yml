@@ -56,10 +56,10 @@ services:
       - fhir.restserver.tieBase=http4://ccriintegration:8182/STU3?throwExceptionOnFailure=false&bridgeEndpoint=true
       - jolokia.username=HSFAdmin
       - jolokia.password=h5fadm!n
-      - ccri.software.version=3.7
-      - ccri.software.name=Care Connect RI FHIR Server
+      - ccri.software.version=1
+      - ccri.software.name=UEC Appointment Booking PoC FHIR Server
       - ccri.server=Care Connect API (unsecured)
-      - ccri.server.base=https://data.developer.nhs.uk/ccri-fhir/STU3
+      - ccri.server.base=http://${FHIR_SERVER_BASE_HOST}/ccri-fhir/STU3
       - ccri.guide=https://nhsconnect.github.io/CareConnectAPI/
     depends_on:
       - ccriserver

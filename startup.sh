@@ -3,6 +3,7 @@ sudo curl -L https://github.com/docker/compose/releases/download/1.23.0-rc2/dock
 sudo chmod +x /usr/local/bin/docker-compose
 cd /home
 sudo mkdir poc
+cd poc
 sudo git clone https://github.com/nhsd-a2si/a2si-uec-appointment-poc
 
 cd a2si-uec-appointment-poc
