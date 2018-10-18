@@ -89,15 +89,23 @@ services:
       ccri_net:
         ipv4_address: 172.168.240.13
 
-  ccrimongo:
-      container_name: ccrimongo
-      image: mongo:3.6.3
+   ccriintegration:
+      container_name: ccriintegration
+      image: thorlogic/ccri-tie${IMAGE_TAG}
+      depends_on:
+      - ccriserver
+      environment:
+      - fhir.restserver.serverBase=http4://ccriserver:8186/ccri-fhirserver/STU3?throwExceptionOnFailure=false&bridgeEndpoint=true
+      - fhir.restserver.eprBase=http://ccriserver:8186/ccri-fhirserver/STU3
+      - fhir.resource.serverName=Care Connect TIE FHIR Server
+      - fhir.resource.serverVersion=3.7.0-SNAPSHOT
       ports:
-        - 27107:27107
+      - 8182:8182
+      volumes:
+      - tie-log-volume:/usr/local/tomcat/logs
       networks:
-        - ccri_net
-
-
+        ccri_net:
+          ipv4_address: 172.168.240.12
 
   ccriui:
     container_name: ccriui

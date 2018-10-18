@@ -9,8 +9,10 @@ sudo git clone https://github.com/nhsd-a2si/a2si-uec-appointment-poc
 cd a2si-uec-appointment-poc
 docker-compose pull
 docker-compose up -d
-sleep 20m
+sleep 5m
 
 docker cp ccri-dataload/src/main/resources/Examples/dataload.sql ccrisql:home/dataload.sql
 
 docker exec -it ccrisql psql -U fhirjpa -d careconnect -f home/dataload.sql
+
+ docker run -e spring.profiles.active=doswrapper-local-dos-stub-na-cpsc-stub-na -e capacity.service.api.username=dummyValue -e capacity.service.api.password=dummyValue -p 7030:7030/tcp pathways-dos-test-stub &
