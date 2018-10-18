@@ -95,8 +95,8 @@ public class AppointmentEntityToFHIRAppointmentTransformer implements Transforme
         }
 
         for (AppointmentParticipant appointmentParticipant : appointmentEntity.getParticipants()) {
-            Appointment.AppointmentParticipantComponent appointmentComponent = appointment.addParticipant();
 
+            Appointment.AppointmentParticipantComponent appointmentComponent = appointment.addParticipant();
 
             if (appointmentParticipant.getActor() != null) {
                 appointmentComponent

@@ -236,6 +236,7 @@ public class AppointmentDao implements AppointmentRepository {
             if (appointment.hasSlot()) {
                 AppointmentSlot appointmentSlot = new AppointmentSlot();
                 appointmentSlot.setSlot(appointmentSlot.getSlot());
+                //appointmentSlot.setSlot(appointment.getSlot());
                 em.persist(appointmentSlot);
             }
         }
@@ -278,10 +279,9 @@ public class AppointmentDao implements AppointmentRepository {
 
                 if(participant.hasActor()){
                     if(participant.getActor().getReference().contains("Patient")){
-                        PatientEntity patientEntity = patientDao.readEntity(ctx,new IdType("Patient/"+participant.getActor().getReference()));
-                        if(patientEntity != null){
-                            appointmentParticipant.setActor(patientEntity);
-                        }
+                        //PatientEntity patientEntity = patientDao.readEntity(ctx,new IdType("Patient/"+participant.getActor().getReference()));
+                        PatientEntity patientEntity = patientDao.readEntity(ctx,new IdType(participant.getActor().getReference()));
+                        if(patientEntity != null){ appointmentParticipant.setActor(patientEntity); }
                     }
                 }
 

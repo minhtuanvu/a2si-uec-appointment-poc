@@ -6,6 +6,7 @@ import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
+import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import org.hl7.fhir.dstu3.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,12 +164,19 @@ public class SlotDao implements SlotRepository {
                 }else {
                     String message = "Schedule/"+slot.getSchedule().getReference() + " does not exist";
                     log.error(message);
-                    throw new OperationOutcomeException("Slot",message, OperationOutcome.IssueType.CODEINVALID);
+                    //throw new OperationOutcomeException("Slot",message, OperationOutcome.IssueType.CODEINVALID);
+
+                    throw OperationOutcomeFactory.buildOperationOutcomeException(
+                            new ResourceNotFoundException("No Schedule/ " + slot.getSchedule().getReference()),
+                            OperationOutcome.IssueSeverity.ERROR, OperationOutcome.IssueType.NOTFOUND);
+
                 }
 
             }catch(Exception ex){
 
             }
+
+
 
         }
 
@@ -410,9 +418,6 @@ public class SlotDao implements SlotRepository {
                 Join<ScheduleActor, HealthcareServiceEntity> join2 = join1.join("healthcareServiceEntity" , JoinType.LEFT);
                 Join<HealthcareServiceEntity, HealthcareServiceIdentifier> join3 = join2.join("identifiers" , JoinType.LEFT);
 
-                System.out.println("serviceIdentifier.getValue():" + serviceIdentifier.getValue());
-                System.out.println("join3 : " + join3);
-
                 Predicate p = builder.equal(join3.get("value"), serviceIdentifier.getValue());
                 predList.add(p);
 
@@ -475,8 +480,5 @@ public class SlotDao implements SlotRepository {
         cq.select(qb.count(cq.from(SlotEntity.class)));
         return em.createQuery(cq).getSingleResult();
     }
-
-
-
 
 }

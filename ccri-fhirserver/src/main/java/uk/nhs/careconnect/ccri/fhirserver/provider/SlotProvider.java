@@ -8,15 +8,13 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.param.*;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
-import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.OperationOutcome;
-import org.hl7.fhir.dstu3.model.Resource;
-import org.hl7.fhir.dstu3.model.Slot;
+import org.hl7.fhir.dstu3.model.*;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.nhs.careconnect.ri.database.daointerface.ScheduleRepository;
 import uk.nhs.careconnect.ri.database.daointerface.SlotRepository;
 import uk.nhs.careconnect.ri.lib.server.OperationOutcomeFactory;
 import uk.nhs.careconnect.ri.lib.server.ProviderResponseLibrary;
@@ -31,6 +29,9 @@ public class SlotProvider implements ICCResourceProvider {
 
     @Autowired
     private SlotRepository slotDao;
+
+    @Autowired
+    private ScheduleRepository scheduleDao;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -128,6 +129,20 @@ public class SlotProvider implements ICCResourceProvider {
 
         return slot;
     }
+
+/*    @Read()
+    public Schedule getSchedule(@IdParam IdType scheduleId) {
+
+        Schedule schedule = scheduleDao.read(ctx,scheduleId);
+
+        if ( schedule == null) {
+            throw OperationOutcomeFactory.buildOperationOutcomeException(
+                    new ResourceNotFoundException("No Schedule/ " + scheduleId.getIdPart()),
+                    OperationOutcome.IssueSeverity.ERROR, OperationOutcome.IssueType.NOTFOUND);
+        }
+
+        return schedule;
+    }*/
 
 
 }
