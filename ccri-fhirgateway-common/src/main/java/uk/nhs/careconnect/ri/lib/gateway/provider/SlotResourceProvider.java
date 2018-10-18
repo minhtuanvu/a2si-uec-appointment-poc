@@ -13,6 +13,7 @@ import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
 import org.apache.camel.*;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.Slot;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
@@ -178,16 +179,16 @@ public class SlotResourceProvider implements IResourceProvider {
 
 
     @Search
-    public List<Slot> searchSlot(HttpServletRequest httpRequest,
+    public List<Resource> searchSlot(HttpServletRequest httpRequest,
 
-                                 @OptionalParam(name = Slot.SP_IDENTIFIER) TokenParam identifier,
-                                 @OptionalParam(name = Slot.SP_START) DateParam start,
-                                 @OptionalParam(name = Slot.SP_STATUS) StringParam status,
-                                 @OptionalParam(name = Slot.SP_RES_ID) TokenParam id,
-                                 @OptionalParam(name =Slot.SP_SCHEDULE) ReferenceParam schedule,
-                                 @OptionalParam(name = "service") ReferenceParam service,
-                                 @OptionalParam(name = "serviceidentifier") TokenParam serviceIdentifier,
-                                 @IncludeParam(allow= {"Slot:schedule",
+                                     @OptionalParam(name = Slot.SP_IDENTIFIER) TokenParam identifier,
+                                     @OptionalParam(name = Slot.SP_START) DateParam start,
+                                     @OptionalParam(name = Slot.SP_STATUS) StringParam status,
+                                     @OptionalParam(name = Slot.SP_RES_ID) TokenParam id,
+                                     @OptionalParam(name =Slot.SP_SCHEDULE) ReferenceParam schedule,
+                                     @OptionalParam(name = "service") ReferenceParam service,
+                                     @OptionalParam(name = "serviceidentifier") TokenParam serviceIdentifier,
+                                     @IncludeParam(allow= {"Slot:schedule",
                                          "Schedule:actor:Practitioner",
                                          "Schedule:actor:PractitionerRole",
                                          "Schedule:actor:Location",
@@ -195,7 +196,7 @@ public class SlotResourceProvider implements IResourceProvider {
     ) throws Exception
     {
 
-        List<Slot> results = new ArrayList<>();
+        List<Resource> results = new ArrayList<>();
 
         ProducerTemplate template = context.createProducerTemplate();
 
