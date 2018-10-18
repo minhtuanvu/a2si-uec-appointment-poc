@@ -231,9 +231,12 @@ public class AppointmentDao implements AppointmentRepository {
         }
 
         log.debug("Appointment.saveSlot");
-        for (Reference reference : appointment.getSlot()) {
-            SlotEntity slotEntity = slotDao.readEntity(ctx, new IdType(reference.getReference()));
-            if (appointment.hasSlot()) {
+        if (appointment.hasSlot()) {
+            for (Reference reference : appointment.getSlot()) {
+
+                SlotEntity slotEntity = slotDao.readEntity(ctx, new IdType(reference.getReference()));
+
+                slotEntity.setStatus(Slot.SlotStatus.BUSY);
                 AppointmentSlot appointmentSlot = new AppointmentSlot();
                 appointmentSlot.setSlot(appointmentSlot.getSlot());
                 //appointmentSlot.setSlot(appointment.getSlot());
