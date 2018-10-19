@@ -20,8 +20,6 @@ docker cp ccri-dataload/src/main/resources/Examples/dataload.sql ccrisql:home/da
 docker exec -it ccrisql psql -U fhirjpa -d careconnect -f home/dataload.sql
 
 echo setting up DoS test stub
-cd ..
-sudo git clone https://github.com/mstephens-xsl/a2si-appt-poc-dos-test-stub
-cd a2si-appt-poc-dos-test-stub
-docker build -t pathways-dos-test-stub .
- docker run -e spring.profiles.active=doswrapper-local-dos-stub-na-cpsc-stub-na -e capacity.service.api.username=dummyValue -e capacity.service.api.password=dummyValue -p 7030:7030/tcp pathways-dos-test-stub &
+
+docker pull a2siuecpoc/pathways-dos-test-stub
+ docker run -e spring.profiles.active=doswrapper-local-dos-stub-na-cpsc-stub-na -e capacity.service.api.username=dummyValue -e capacity.service.api.password=dummyValue -p 7030:7030/tcp a2siuecpoc/pathways-dos-test-stub &
