@@ -22,13 +22,13 @@ docker exec -it ccrisql psql -U fhirjpa -d careconnect -f home/dataload.sql
 
 A basic test is to issue a GET to the following URL which will retrieve the CapabilityStatement:
 ```
-http://<installation-path-and-port>/fhir/STU3/Metadata
+http://<installation-path-and-port>/ccri-fhir/STU3/Metadata
 ```
 
 ## Appointment Slot Retrieval
 Appointment slots along with referenced resources can be retrieved by issuing the following request, using the current date for the start parameter:
 ```
-http://<installation-path-and-port>/ccri-fhirserver/STU3/Slot?status=free&start=2018-10-17&_include=Slot:schedule&_include:recurse=Schedule:actor:Practitioner&_include:recurse=Schedule:actor:PractitionerRole&_include:recurse=Schedule:actor:Location&_include:recurse=Schedule:actor:HealthcareService&serviceidentifier=123456789011
+http://<installation-path-and-port>/ccri-fhir/STU3/Slot?status=free&start=2018-10-17&_include=Slot:schedule&_include:recurse=Schedule:actor:Practitioner&_include:recurse=Schedule:actor:PractitionerRole&_include:recurse=Schedule:actor:Location&_include:recurse=Schedule:actor:HealthcareService&serviceidentifier=123456789011
 ```
 
 Removing the serviceidentifier parameter will return all slots for the given date
@@ -36,7 +36,7 @@ Removing the serviceidentifier parameter will return all slots for the given dat
 ## Appointment Booking
 To book an appointment, a FHIR Appointment resource will need to be POSTed to the following URL
 ```
-http://<installation-path-and-port>/fhir/STU3/Appointment
+http://<installation-path-and-port>/ccri-fhir/STU3/Appointment
 ```
 
 The following is an example Appointment Resource which can be used for posting:
